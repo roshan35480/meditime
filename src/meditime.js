@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Clock, Bell, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Clock, Bell } from 'lucide-react';
 import UserManagementModal from './components/UserManagementModal';
 import NotificationPermissionModal from './components/NotificationPermissionModal';
 import Header from './components/Header';

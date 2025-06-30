@@ -154,7 +154,7 @@ const ScheduleForm = ({
             {medicine.schedulingMethod === 'daysPerWeek' && (
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Days</h3>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {weekdays.map(day => (
                     <label key={day} className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-white/50 transition-colors cursor-pointer">
                       <input
@@ -248,7 +248,7 @@ const ScheduleForm = ({
                   Add Time
                 </button>
               </div>
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {medicine.doseTimes.map((time, doseIndex) => (
                   <div key={doseIndex} className="flex items-center gap-3">
                     <input
@@ -322,11 +322,11 @@ const ScheduleForm = ({
         </div>
 
         {/* Submit Button */}
-        <div className="flex gap-4 pt-8">
+        <div className="flex flex-col sm:flex-row gap-4 pt-8">
           <button
             type="button"
             onClick={onSubmit}
-            className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-[1.02] shadow-lg hover:shadow-xl flex items-center justify-center gap-2 font-semibold"
+            className="w-full flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-[1.02] shadow-lg hover:shadow-xl flex items-center justify-center gap-2 font-semibold"
           >
             <CheckCircle className="w-5 h-5" />
             Schedule Medication
@@ -334,7 +334,7 @@ const ScheduleForm = ({
           <button
             type="button"
             onClick={onReset}
-            className="px-6 py-4 text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-medium"
+            className="w-full sm:w-auto px-6 py-4 text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-medium"
           >
             Reset
           </button>
