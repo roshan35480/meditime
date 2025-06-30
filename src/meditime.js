@@ -44,7 +44,7 @@ const MediTime = () => {
   const [reminder, setReminder] = useState(null);
   const [notificationPermission, setNotificationPermission] = useState('default');
   const reminderTimeoutRef = useRef(null);
-  const audioRef = useRef(null);
+  const soundIntervalRef = useRef(null);
 
   const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -58,27 +58,6 @@ const MediTime = () => {
         });
       }
     }
-  }, []);
-
-  // Create audio element for reminder sound
-  useEffect(() => {
-    audioRef.current = new Audio();
-    // Create a simple beep sound using Web Audio API
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-    oscillator.type = 'sine';
-    
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.5);
   }, []);
 
   // Load data from localStorage on mount
@@ -142,25 +121,21 @@ const MediTime = () => {
     }
   }, [submittedData]);
 
-  // Function to play reminder sound
-  const playReminderSound = () => {
+  // Function to play reminder sound using Text-to-Speech
+  const playReminderSound = (message) => {
     try {
-      // Try to play a simple beep sound
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-      oscillator.type = 'sine';
-      
-      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-      
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 0.5);
+      if ('speechSynthesis' in window) {
+        // Stop any previous speech
+        window.speechSynthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.lang = 'en-US';
+        utterance.rate = 1;
+        utterance.pitch = 1;
+        window.speechSynthesis.speak(utterance);
+      } else {
+        console.log("Speech synthesis not supported.");
+      }
     } catch (error) {
       console.log('Audio playback failed:', error);
     }
@@ -198,6 +173,9 @@ const MediTime = () => {
     if (reminderTimeoutRef.current) {
       clearTimeout(reminderTimeoutRef.current);
     }
+    if (soundIntervalRef.current) {
+      clearInterval(soundIntervalRef.current);
+    }
 
     let soonestDose = null;
     let reminderPatient = null;
@@ -226,10 +204,17 @@ const MediTime = () => {
     if (soonestDose && reminderMedicine) {
       const ms = soonestDose - now;
       reminderTimeoutRef.current = setTimeout(() => {
-        const reminderMessage = `⏰ MEDICATION REMINDER: ${reminderPatient} - Take ${reminderMedicine.medicineName} now (${soonestDose.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`;
+        const reminderMessageUI = `⏰ ${reminderPatient} - Take ${reminderMedicine.medicineName} at ${soonestDose.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        const ttsMessage = `${reminderPatient}, it is time to take your ${reminderMedicine.medicineName}.`;
         
-        setReminder(reminderMessage);
-        playReminderSound();
+        setReminder(reminderMessageUI);
+        
+        // Play immediately and then start interval
+        playReminderSound(ttsMessage);
+        soundIntervalRef.current = setInterval(() => {
+          playReminderSound(ttsMessage);
+        }, 10000); // Repeats every 10 seconds
+
         showBrowserNotification(
           'MediTime - Medication Reminder',
           `${reminderPatient}: Take ${reminderMedicine.medicineName} now`
@@ -239,8 +224,20 @@ const MediTime = () => {
 
     return () => {
       if (reminderTimeoutRef.current) clearTimeout(reminderTimeoutRef.current);
+      if (soundIntervalRef.current) clearInterval(soundIntervalRef.current);
     };
   }, [savedSchedules, activeUser]);
+
+  const handleDismissReminder = () => {
+    setReminder(null);
+    if (soundIntervalRef.current) {
+      clearInterval(soundIntervalRef.current);
+      soundIntervalRef.current = null;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+  };
 
   // Request notification permission function
   const requestNotificationPermission = () => {
@@ -503,10 +500,19 @@ const MediTime = () => {
 
       {/* Reminder Banner */}
       {reminder && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-yellow-100 border border-yellow-300 text-yellow-900 px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-bounce">
-          <Bell className="w-6 h-6 text-yellow-600" />
-          <span>{reminder}</span>
-          <button onClick={() => setReminder(null)} className="ml-4 text-yellow-700 hover:text-yellow-900 font-bold">Dismiss</button>
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-11/12 md:w-auto max-w-lg bg-yellow-100 border border-yellow-300 text-yellow-900 px-4 py-3 sm:px-6 rounded-xl shadow-lg flex flex-col sm:flex-row items-center gap-3 animate-bounce">
+          <div className="flex-shrink-0">
+            <Bell className="w-6 h-6 text-yellow-600" />
+          </div>
+          <div className="flex-1 text-center sm:text-left">
+            <span className="font-medium">{reminder}</span>
+          </div>
+          <button 
+            onClick={handleDismissReminder} 
+            className="w-full sm:w-auto mt-2 sm:mt-0 ml-0 sm:ml-4 px-3 py-1 bg-yellow-200 hover:bg-yellow-300 text-yellow-800 hover:text-yellow-900 font-bold rounded-md"
+          >
+            Dismiss
+          </button>
         </div>
       )}
       {/* Header */}
