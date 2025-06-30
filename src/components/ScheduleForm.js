@@ -154,7 +154,7 @@ const ScheduleForm = ({
             {medicine.schedulingMethod === 'daysPerWeek' && (
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Days</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   {weekdays.map(day => (
                     <label key={day} className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-white/50 transition-colors cursor-pointer">
                       <input
@@ -258,7 +258,7 @@ const ScheduleForm = ({
                       className={`flex-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all ${
                         medicineErrors[`doseTime${doseIndex}`] ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                       }`}
-                      placeholder="HH:MM (e.g., 08:00) - Optional"
+                      placeholder="HH:MM (e.g., 08:00)"
                     />
                     {medicine.doseTimes.length > 1 && (
                       <button
