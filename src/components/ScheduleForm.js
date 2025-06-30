@@ -249,28 +249,34 @@ const ScheduleForm = ({
                 </button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {medicine.doseTimes.map((time, doseIndex) => (
-                  <div key={doseIndex} className="flex items-center gap-3">
-                    <input
-                      type="text"
-                      value={time}
-                      onChange={(e) => onDoseTimeChange(index, doseIndex, e.target.value)}
-                      className={`flex-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all ${
-                        medicineErrors[`doseTime${doseIndex}`] ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                      placeholder="HH:MM (e.g., 08:00) - Optional"
-                    />
-                    {medicine.doseTimes.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => onRemoveDoseTime(index, doseIndex)}
-                        className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-all"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
+                {medicine.doseTimes.length > 0 ? (
+                  medicine.doseTimes.map((time, doseIndex) => (
+                    <div key={doseIndex} className="flex items-center gap-3">
+                      <input
+                        type="text"
+                        value={time}
+                        onChange={(e) => onDoseTimeChange(index, doseIndex, e.target.value)}
+                        className={`flex-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all ${
+                          medicineErrors[`doseTime${doseIndex}`] ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        placeholder="HH:MM (e.g., 08:00) - Optional"
+                      />
+                      {medicine.doseTimes.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => onRemoveDoseTime(index, doseIndex)}
+                          className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-all"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center col-span-1 sm:col-span-2 text-gray-500 text-sm py-4">
+                    Click "Add Time" to specify dose times.
                   </div>
-                ))}
+                )}
               </div>
               {Object.keys(medicineErrors).some(key => key.startsWith('doseTime')) && (
                 <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
