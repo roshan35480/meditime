@@ -250,12 +250,12 @@ const ScheduleForm = ({
               </div>
               <div className="space-y-3">
                 {medicine.doseTimes.map((time, doseIndex) => (
-                  <div key={doseIndex} className="flex items-center gap-3">
+                  <div key={doseIndex} className="flex flex-wrap items-center gap-3">
                     <input
                       type="text"
                       value={time}
                       onChange={(e) => onDoseTimeChange(index, doseIndex, e.target.value)}
-                      className={`flex-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all ${
+                      className={`flex-1 min-w-[120px] px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all ${
                         medicineErrors[`doseTime${doseIndex}`] ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                       }`}
                       placeholder="HH:MM (e.g., 08:00)"
