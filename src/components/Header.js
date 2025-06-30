@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, User, Pill, Bell, AlertCircle, Settings, Users } from 'lucide-react';
+import { Clock, Bell, AlertCircle, Settings, Users } from 'lucide-react';
 
 const Header = ({ 
   notificationPermission, 

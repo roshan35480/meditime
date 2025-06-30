@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Clock, User, Pill, Calendar, Plus, Trash2, AlertCircle, CheckCircle, Bell, Settings, ChevronRight, Star, Minus, Users, X } from 'lucide-react';
+import { Clock, User, Bell, AlertCircle } from 'lucide-react';
 import UserManagementModal from './components/UserManagementModal';
 import NotificationPermissionModal from './components/NotificationPermissionModal';
 import Header from './components/Header';
@@ -36,7 +36,6 @@ const MediTime = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [savedSchedules, setSavedSchedules] = useState([]);
   const [showUserModal, setShowUserModal] = useState(false);
-  const [newUserName, setNewUserName] = useState('');
 
   // New state for the permission denied modal
   const [showPermissionDeniedModal, setShowPermissionDeniedModal] = useState(false);
