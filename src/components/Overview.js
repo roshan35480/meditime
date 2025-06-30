@@ -10,15 +10,15 @@ const Overview = ({
   onShowUserModal,
 }) => {
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
-      <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
-        <h2 className="text-2xl font-bold text-gray-900">
+    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-4 sm:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
           Schedule Overview for <span className="text-blue-600">{activeUser || '...'}</span>
         </h2>
         {activeUser && savedSchedules.length > 0 && (
           <button
             onClick={onClearAllSchedules}
-            className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium"
+            className="w-full sm:w-auto flex items-center justify-center sm:justify-start gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium"
           >
             <Trash2 className="w-4 h-4" />
             Clear All Schedules

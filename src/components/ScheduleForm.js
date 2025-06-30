@@ -18,22 +18,22 @@ const ScheduleForm = ({
   onReset,
 }) => {
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-4 sm:p-6 md:p-8">
-      <div className="flex items-center space-x-3 mb-6 sm:mb-8">
-        <div className="bg-blue-100 p-2 sm:p-3 rounded-xl">
-          <Pill className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
+      <div className="flex items-center space-x-3 mb-8">
+        <div className="bg-blue-100 p-3 rounded-xl">
+          <Pill className="w-6 h-6 text-blue-600" />
         </div>
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Schedule Medication</h2>
-          <p className="text-sm text-gray-500">Configure your schedule</p>
+          <h2 className="text-2xl font-bold text-gray-900">Schedule Medication</h2>
+          <p className="text-gray-500">Configure your medication schedule</p>
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Patient Info */}
-        <div className="space-y-4">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-3 sm:p-4">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+        <div className="space-y-6">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <User className="w-5 h-5 text-blue-600" />
               Patient Information
             </h3>
@@ -66,23 +66,23 @@ const ScheduleForm = ({
           const medicineErrors = (errors.medicines && errors.medicines[index]) || {};
           
           return (
-          <div key={index} className="space-y-6 border-2 border-dashed border-gray-300 rounded-2xl p-3 sm:p-4 relative">
+          <div key={index} className="space-y-8 border-2 border-dashed border-gray-300 rounded-2xl p-4 relative mb-6">
             {formData.medicines.length > 1 && (
               <button
                 type="button"
                 onClick={() => onRemoveMedicine(index)}
-                className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-1 hover:bg-red-50 rounded-lg transition-all z-10"
+                className="absolute top-4 right-4 text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-all z-10"
               >
-                <Minus className="w-4 h-4" />
+                <Minus className="w-5 h-5" />
               </button>
             )}
             <div className="flex items-center">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-700">Medicine #{index + 1}</h3>
+              <h3 className="text-xl font-bold text-gray-700">Medicine #{index + 1}</h3>
             </div>
 
             {/* Medicine Name */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-3 sm:p-4">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Pill className="w-5 h-5 text-blue-600" />
                 Medicine Information
               </h3>
@@ -109,8 +109,8 @@ const ScheduleForm = ({
             </div>
 
             {/* Scheduling Method */}
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-3 sm:p-4">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-green-600" />
                 Scheduling Method
               </h3>
@@ -152,18 +152,18 @@ const ScheduleForm = ({
 
             {/* Days Selection */}
             {medicine.schedulingMethod === 'daysPerWeek' && (
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-3 sm:p-4">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Select Days</h3>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Days</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                   {weekdays.map(day => (
-                    <label key={day} className="flex items-center p-2 border border-gray-200 rounded-lg hover:bg-white/50 transition-colors cursor-pointer">
+                    <label key={day} className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-white/50 transition-colors cursor-pointer">
                       <input
                         type="checkbox"
                         checked={medicine.selectedDays.includes(day)}
                         onChange={() => onDayToggle(index, day)}
-                        className="mr-2 text-purple-600"
+                        className="mr-3 text-purple-600"
                       />
-                      <span className="font-medium text-gray-900 text-sm">{day}</span>
+                      <span className="font-medium text-gray-900">{day}</span>
                     </label>
                   ))}
                 </div>
@@ -178,8 +178,8 @@ const ScheduleForm = ({
 
             {/* Days Gap */}
             {medicine.schedulingMethod === 'daysGap' && (
-              <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-3 sm:p-4">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Gap Between Days</h3>
+              <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Gap Between Days</h3>
                 <input
                   type="number"
                   min="1"
@@ -200,8 +200,8 @@ const ScheduleForm = ({
             )}
 
             {/* Dosing Details */}
-            <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-3 sm:p-4">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+            <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-cyan-600" />
                 Dosing Details
               </h3>
@@ -233,50 +233,44 @@ const ScheduleForm = ({
             </div>
 
             {/* Dose Times - Optional */}
-            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-3 sm:p-4">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-2 mb-2 sm:mb-0">
+            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                   <Clock className="w-5 h-5 text-indigo-600" />
                   Dose Times (Optional)
                 </h3>
                 <button
                   type="button"
                   onClick={() => onAddDoseTime(index)}
-                  className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center gap-1 bg-white px-3 py-1.5 rounded-lg border border-indigo-200 hover:border-indigo-300 transition-all self-start sm:self-center"
+                  className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center gap-1 bg-white px-3 py-1 rounded-lg border border-indigo-200 hover:border-indigo-300 transition-all"
                 >
                   <Plus className="w-4 h-4" />
                   Add Time
                 </button>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {medicine.doseTimes.length > 0 ? (
-                  medicine.doseTimes.map((time, doseIndex) => (
-                    <div key={doseIndex} className="flex items-center gap-3">
-                      <input
-                        type="text"
-                        value={time}
-                        onChange={(e) => onDoseTimeChange(index, doseIndex, e.target.value)}
-                        className={`flex-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all ${
-                          medicineErrors[`doseTime${doseIndex}`] ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                        placeholder="HH:MM (e.g., 08:00)"
-                      />
-                      {medicine.doseTimes.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => onRemoveDoseTime(index, doseIndex)}
-                          className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-all"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center col-span-1 sm:col-span-2 text-gray-500 text-sm py-4">
-                    Click "Add Time" to specify dose times.
+              <div className="space-y-3">
+                {medicine.doseTimes.map((time, doseIndex) => (
+                  <div key={doseIndex} className="flex items-center gap-3">
+                    <input
+                      type="text"
+                      value={time}
+                      onChange={(e) => onDoseTimeChange(index, doseIndex, e.target.value)}
+                      className={`flex-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all ${
+                        medicineErrors[`doseTime${doseIndex}`] ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                      placeholder="HH:MM (e.g., 08:00) - Optional"
+                    />
+                    {medicine.doseTimes.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => onRemoveDoseTime(index, doseIndex)}
+                        className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-all"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
               {Object.keys(medicineErrors).some(key => key.startsWith('doseTime')) && (
                 <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
@@ -286,8 +280,8 @@ const ScheduleForm = ({
               )}
             </div>
              {/* Optional Date Range */}
-            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-3 sm:p-4">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Date Range (Optional)</h3>
+            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Date Range (Optional)</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -328,19 +322,19 @@ const ScheduleForm = ({
         </div>
 
         {/* Submit Button */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-6">
+        <div className="flex flex-col sm:flex-row gap-4 pt-8">
           <button
             type="button"
             onClick={onSubmit}
-            className="w-full flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-5 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-[1.02] shadow-lg hover:shadow-xl flex items-center justify-center gap-2 font-semibold"
+            className="w-full sm:w-auto flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-[1.02] shadow-lg hover:shadow-xl flex items-center justify-center gap-2 font-semibold"
           >
             <CheckCircle className="w-5 h-5" />
-            Schedule
+            Schedule Medication
           </button>
           <button
             type="button"
             onClick={onReset}
-            className="w-full sm:w-auto px-5 py-3 text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-medium"
+            className="w-full sm:w-auto px-6 py-4 text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-medium"
           >
             Reset
           </button>

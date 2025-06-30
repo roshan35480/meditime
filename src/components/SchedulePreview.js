@@ -32,32 +32,32 @@ const SchedulePreview = ({ submittedData }) => {
               Schedule Details
             </h4>
             <div className="space-y-3 text-sm">
-              <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200">
+              <div className="flex flex-col sm:flex-row justify-between py-2 border-b border-gray-200">
                 <span className="font-medium text-gray-600">Patient:</span>
-                <span className="font-semibold text-gray-900 sm:text-right">{submittedData.patientName}</span>
+                <span className="font-semibold text-gray-900 text-left sm:text-right">{submittedData.patientName}</span>
               </div>
               {submittedData.medicines.map((medicine, index) => (
                 <div key={index} className="py-4 border-b border-gray-200 last:border-b-0">
-                   <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center text-blue-700 font-bold mb-2">
+                   <div className="flex justify-between items-center text-blue-700 font-bold mb-2">
                      <span className="flex items-center gap-2"><Pill className="w-4 h-4"/>Medicine #{index + 1}</span>
-                     <span className="sm:text-right">{medicine.medicineName}</span>
+                     <span className="text-left sm:text-right">{medicine.medicineName}</span>
                    </div>
-                  <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-t border-gray-200">
+                  <div className="flex flex-col sm:flex-row justify-between py-2 border-t border-gray-200">
                     <span className="font-medium text-gray-600">Schedule Type:</span>
-                    <span className="font-semibold text-gray-900 sm:text-right">
+                    <span className="font-semibold text-gray-900 text-left sm:text-right">
                       {medicine.schedulingMethod === 'daysPerWeek' 
                         ? `Fixed days: ${medicine.selectedDays.join(', ')}`
                         : `Every ${medicine.daysGap} day(s)`
                       }
                     </span>
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200">
+                  <div className="flex flex-col sm:flex-row justify-between py-2 border-b border-gray-200">
                     <span className="font-medium text-gray-600">Frequency:</span>
-                    <span className="font-semibold text-gray-900 sm:text-right">{medicine.timesPerDay} time(s) per day</span>
+                    <span className="font-semibold text-gray-900 text-left sm:text-right">{medicine.timesPerDay} time(s) per day</span>
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200">
+                  <div className="flex flex-col sm:flex-row justify-between py-2 border-b border-gray-200">
                     <span className="font-medium text-gray-600">Dose Times:</span>
-                    <span className="font-semibold text-gray-900 sm:text-right">
+                    <span className="font-semibold text-gray-900 text-left sm:text-right">
                       {medicine.doseTimes.filter(time => time.trim()).length > 0 
                         ? medicine.doseTimes.filter(time => time.trim()).join(', ')
                         : 'Not specified'
@@ -65,15 +65,15 @@ const SchedulePreview = ({ submittedData }) => {
                     </span>
                   </div>
                   {medicine.startDate && (
-                    <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200">
+                    <div className="flex flex-col sm:flex-row justify-between py-2 border-b border-gray-200">
                       <span className="font-medium text-gray-600">Start Date:</span>
-                      <span className="font-semibold text-gray-900 sm:text-right">{medicine.startDate}</span>
+                      <span className="font-semibold text-gray-900 text-left sm:text-right">{medicine.startDate}</span>
                     </div>
                   )}
                   {medicine.endDate && (
-                    <div className="flex flex-col sm:flex-row sm:justify-between py-2">
+                    <div className="flex flex-col sm:flex-row justify-between py-2">
                       <span className="font-medium text-gray-600">End Date:</span>
-                      <span className="font-semibold text-gray-900 sm:text-right">{medicine.endDate}</span>
+                      <span className="font-semibold text-gray-900 text-left sm:text-right">{medicine.endDate}</span>
                     </div>
                   )}
                 </div>

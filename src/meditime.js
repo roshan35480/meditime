@@ -209,17 +209,17 @@ const MediTime = () => {
     savedSchedules.forEach(schedule => {
       schedule.medicines.forEach(medicine => {
         const times = (medicine.doseTimes || []).filter(Boolean);
-        times.forEach(time => {
-          const [h, m] = time.split(':');
-          if (h && m) {
+    times.forEach(time => {
+      const [h, m] = time.split(':');
+      if (h && m) {
             const doseDate = new Date(`${today}T${time}:00`);
             if (doseDate > now && (!soonestDose || doseDate < soonestDose)) {
               soonestDose = doseDate;
               reminderPatient = schedule.patientName;
               reminderMedicine = medicine;
-            }
-          }
-        });
+        }
+      }
+    });
       });
     });
 
@@ -328,7 +328,7 @@ const MediTime = () => {
       }));
     }
   };
-  
+
   const handlePatientNameChange = (value) => {
     setFormData(prev => ({
       ...prev,
@@ -405,29 +405,29 @@ const MediTime = () => {
 
       if (!medicine.medicineName.trim()) {
         medicineErrors.medicineName = 'Medicine name is required';
-      }
+    }
 
       if (!medicine.schedulingMethod) {
         medicineErrors.schedulingMethod = 'Please select a scheduling method';
-      }
+    }
 
       if (medicine.schedulingMethod === 'daysPerWeek' && medicine.selectedDays.length === 0) {
         medicineErrors.selectedDays = 'Please select at least one day';
-      }
+    }
 
       if (medicine.schedulingMethod === 'daysGap' && (!medicine.daysGap || medicine.daysGap < 1)) {
         medicineErrors.daysGap = 'Please enter a valid gap in days';
-      }
+    }
 
       if (!medicine.timesPerDay || medicine.timesPerDay < 1) {
         medicineErrors.timesPerDay = 'Times per day must be at least 1';
-      }
+    }
 
-      const timePattern = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    const timePattern = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
       medicine.doseTimes.forEach((time, doseIndex) => {
-        if (time.trim() && !timePattern.test(time)) {
+      if (time.trim() && !timePattern.test(time)) {
           medicineErrors[`doseTime${doseIndex}`] = 'Please enter time in HH:MM format';
-        }
+      }
       });
       newErrors.medicines[index] = medicineErrors;
     });
@@ -544,7 +544,7 @@ const MediTime = () => {
         </div>
 
         {activeTab === 'schedule' && (
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Form Section */}
             <ScheduleForm 
               formData={formData}
