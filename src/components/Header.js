@@ -13,13 +13,9 @@ const Header = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-3">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-xl">
-              <Clock className="w-6 h-6 text-white" />
-            </div>
+            <img src="/meditime-logo.png" alt="MediTime Logo" style={{ height: 50 , width: 50, borderRadius: 50}} />
             <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                MediTime
-              </h1>
+              <h1 className="text-2xl font-bold text-blue-700">meditime</h1>
               <p className="hidden sm:block text-xs text-gray-500">Medication Scheduler</p>
             </div>
           </div>

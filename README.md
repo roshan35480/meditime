@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/meditime-logo.png" alt="MediTime Logo" width="200"/>
+</p>
+
 # MediTime - Medication Reminder App
 
 A React-based medication reminder application that helps users manage their medication schedules. The app stores all data locally in the browser's localStorage, ensuring privacy and offline functionality.
