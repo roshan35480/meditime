@@ -342,6 +342,25 @@ const MediTime = () => {
     }
   };
 
+  // Function to delete all schedules for a specific patient
+  const deleteSchedulesByPatient = async (patientName) => {
+    if (window.confirm(`Are you sure you want to delete ALL schedules for patient "${patientName}"? This action cannot be undone.`)) {
+      try {
+        const users = await storageService.getUsers();
+        const user = users.find(u => u.name === activeUser);
+        if (user) {
+          await storageService.deleteSchedulesByPatient(user.id, patientName);
+          // Refresh schedules after deletion
+          const updatedSchedules = await storageService.getSchedules(user.id);
+          setSavedSchedules(updatedSchedules);
+        }
+      } catch (error) {
+        console.error('Error deleting schedules for patient:', error);
+        alert("Failed to delete schedules for patient. Please try again.");
+      }
+    }
+  };
+
   // Handlers for user management
   const handleCreateUser = async (newUserName) => {
     try {
@@ -729,7 +748,7 @@ const MediTime = () => {
             />
 
             {/* Preview Section */}
-            <SchedulePreview submittedData={submittedData} />
+            <SchedulePreview submittedData={formData} />
           </div>
         )}
 
@@ -740,6 +759,7 @@ const MediTime = () => {
             groupedSchedules={groupedSchedules}
             onClearAllSchedules={clearAllSchedules}
             onDeleteSchedule={deleteSchedule}
+            onDeleteSchedulesByPatient={deleteSchedulesByPatient}
             onShowUserModal={() => setShowUserModal(true)}
           />
         )}

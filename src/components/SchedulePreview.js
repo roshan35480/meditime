@@ -3,6 +3,9 @@ import { Clock, CheckCircle, Star, Pill } from 'lucide-react';
 import { convert24To12 } from '../utils/timeUtils';
 
 const SchedulePreview = ({ submittedData }) => {
+  // Debug logging
+  console.log('SchedulePreview received data:', submittedData);
+  
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
       <div className="flex items-center space-x-3 mb-8">
@@ -15,7 +18,7 @@ const SchedulePreview = ({ submittedData }) => {
         </div>
       </div>
       
-      {submittedData ? (
+      {submittedData && submittedData.patientName && submittedData.medicines && submittedData.medicines.length > 0 ? (
         <div className="space-y-6">
           <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
             <div className="flex items-center gap-3 mb-4">
@@ -97,10 +100,20 @@ const SchedulePreview = ({ submittedData }) => {
           <div className="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
             <Clock className="w-10 h-10 text-gray-400" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Schedule Yet</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Schedule Preview</h3>
           <p className="text-gray-500">
-            Fill out the form to preview your medication schedule
+            {submittedData && submittedData.patientName 
+              ? `Fill out the medicine details for ${submittedData.patientName} to see the preview`
+              : 'Fill out the form to preview your medication schedule'
+            }
           </p>
+          {submittedData && submittedData.medicines && submittedData.medicines.length > 0 && (
+            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-700">
+                <strong>Form Progress:</strong> {submittedData.medicines.filter(m => m.medicineName).length} of {submittedData.medicines.length} medicines configured
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

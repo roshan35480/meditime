@@ -40,7 +40,7 @@ class StorageService {
   }
 
   async deleteUser(userId) {
-    this.deleteUserLocal(userId);
+      this.deleteUserLocal(userId);
   }
 
   deleteUserLocal(userId) {
@@ -93,7 +93,7 @@ class StorageService {
   }
 
   async deleteSchedule(scheduleId, userId) {
-    this.deleteScheduleLocal(scheduleId, userId);
+      this.deleteScheduleLocal(scheduleId, userId);
   }
 
   deleteScheduleLocal(scheduleId, userId) {
@@ -110,7 +110,7 @@ class StorageService {
   }
 
   async deleteAllSchedules(userId) {
-    this.deleteAllSchedulesLocal(userId);
+      this.deleteAllSchedulesLocal(userId);
   }
 
   deleteAllSchedulesLocal(userId) {
@@ -124,9 +124,30 @@ class StorageService {
     }
   }
 
+  // Delete all schedules for a specific patient
+  async deleteSchedulesByPatient(userId, patientName) {
+    return this.deleteSchedulesByPatientLocal(userId, patientName);
+  }
+
+  deleteSchedulesByPatientLocal(userId, patientName) {
+    const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (data) {
+      const appData = JSON.parse(data);
+      if (appData.schedules && appData.schedules[userId]) {
+        // Filter out schedules for the specific patient
+        appData.schedules[userId] = appData.schedules[userId].filter(
+          schedule => schedule.patientName !== patientName
+        );
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(appData));
+        return true;
+      }
+    }
+    return false;
+  }
+
   // Form Data Management
   async saveFormData(userId, formData) {
-    this.saveFormDataLocal(userId, formData);
+      this.saveFormDataLocal(userId, formData);
   }
 
   saveFormDataLocal(userId, formData) {
@@ -155,7 +176,7 @@ class StorageService {
   }
 
   async deleteFormData(userId) {
-    this.deleteFormDataLocal(userId);
+      this.deleteFormDataLocal(userId);
   }
 
   deleteFormDataLocal(userId) {
@@ -171,20 +192,20 @@ class StorageService {
 
   // Real-time subscriptions (localStorage polling)
   subscribeToSchedules(userId, callback) {
-    // For localStorage, use polling
-    const interval = setInterval(() => {
-      callback(this.getSchedulesLocal(userId));
-    }, 5000);
-    return () => clearInterval(interval);
+      // For localStorage, use polling
+      const interval = setInterval(() => {
+        callback(this.getSchedulesLocal(userId));
+      }, 5000);
+      return () => clearInterval(interval);
   }
 
   subscribeToUsers(callback) {
-    // For localStorage, use polling
-    const interval = setInterval(() => {
-      callback(this.getUsersLocal());
-    }, 5000);
-    return () => clearInterval(interval);
-  }
+      // For localStorage, use polling
+      const interval = setInterval(() => {
+        callback(this.getUsersLocal());
+      }, 5000);
+      return () => clearInterval(interval);
+    }
 
   // Utility methods
   clearAllData() {
@@ -192,7 +213,7 @@ class StorageService {
   }
 
   exportData() {
-    const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const data = localStorage.getItem(LOCAL_STORAGE_KEY);
     return data ? JSON.parse(data) : null;
   }
 
@@ -202,8 +223,8 @@ class StorageService {
       return true;
     }
     return false;
-  }
-}
+        }
+      }
 
 const storageService = new StorageService();
 export default storageService; 

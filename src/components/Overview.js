@@ -8,6 +8,7 @@ const Overview = ({
   groupedSchedules,
   onClearAllSchedules,
   onDeleteSchedule,
+  onDeleteSchedulesByPatient,
   onShowUserModal,
 }) => {
   return (
@@ -52,10 +53,22 @@ const Overview = ({
         <div className="space-y-8">
           {Object.entries(groupedSchedules).map(([patientName, schedulesForPatient]) => (
             <div key={patientName} className="bg-white/50 rounded-xl p-6 shadow-md">
-              <h4 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-3">
-                <User className="w-6 h-6 text-blue-600" />
-                <span>{patientName}</span>
-              </h4>
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                  <User className="w-6 h-6 text-blue-600" />
+                  <span>{patientName}</span>
+                </h4>
+                {schedulesForPatient.length > 0 && (
+                  <button
+                    onClick={() => onDeleteSchedulesByPatient(patientName)}
+                    className="flex items-center gap-2 px-3 py-1 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors text-sm font-medium"
+                    title={`Delete all schedules for ${patientName}`}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete All ({schedulesForPatient.length})
+                  </button>
+                )}
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {schedulesForPatient.map((sched) => {
                   const isNewFormat = !!sched.medicines;
