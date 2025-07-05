@@ -1,5 +1,6 @@
 import React from 'react';
 import { Clock, CheckCircle, Star, Pill } from 'lucide-react';
+import { convert24To12 } from '../utils/timeUtils';
 
 const SchedulePreview = ({ submittedData }) => {
   return (
@@ -59,7 +60,7 @@ const SchedulePreview = ({ submittedData }) => {
                     <span className="font-medium text-gray-600">Dose Times:</span>
                     <span className="font-semibold text-gray-900 text-left sm:text-right">
                       {medicine.doseTimes.filter(time => time.trim()).length > 0 
-                        ? medicine.doseTimes.filter(time => time.trim()).join(', ')
+                        ? medicine.doseTimes.filter(time => time.trim()).map(time => convert24To12(time)).join(', ')
                         : 'Not specified'
                       }
                     </span>

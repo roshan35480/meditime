@@ -1,5 +1,6 @@
 import React from 'react';
 import { User, Pill, Calendar, Clock, Plus, Minus, Trash2, CheckCircle, AlertCircle } from 'lucide-react';
+import { convert24To12, convert12To24 } from '../utils/timeUtils';
 
 const ScheduleForm = ({
   formData,
@@ -293,12 +294,17 @@ const ScheduleForm = ({
                     <div key={doseIndex} className="flex flex-wrap items-center gap-3">
                       <input
                         type="text"
-                        value={time}
-                        onChange={(e) => onDoseTimeChange(index, doseIndex, e.target.value)}
-                        className={`flex-1 min-w-[120px] px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all ${
+                        value={convert24To12(time)}
+                        onChange={(e) => {
+                          const inputValue = e.target.value;
+                          // Convert 12-hour input to 24-hour for storage
+                          const time24 = convert12To24(inputValue);
+                          onDoseTimeChange(index, doseIndex, time24);
+                        }}
+                        className={`flex-1 min-w-[140px] px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all ${
                           medicineErrors[`doseTime${doseIndex}`] ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                         }`}
-                        placeholder="HH:MM (e.g., 08:00)"
+                        placeholder="HH:MM AM/PM (e.g., 08:00 AM)"
                       />
                       {medicine.doseTimes.length > 1 && (
                         <button
@@ -310,7 +316,7 @@ const ScheduleForm = ({
                         </button>
                       )}
                       {nextSuggestion && (
-                        <span className="text-xs text-indigo-500 ml-2">Suggested next: {nextSuggestion}</span>
+                        <span className="text-xs text-indigo-500 ml-2">Suggested next: {convert24To12(nextSuggestion)}</span>
                       )}
                     </div>
                   );
@@ -319,7 +325,7 @@ const ScheduleForm = ({
               {Object.keys(medicineErrors).some(key => key.startsWith('doseTime')) && (
                 <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
                   <AlertCircle className="w-4 h-4" />
-                  Please check dose time formats (use HH:MM format)
+                  Please check dose time formats (use HH:MM AM/PM format)
                 </p>
               )}
             </div>

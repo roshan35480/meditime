@@ -543,10 +543,11 @@ const MediTime = () => {
         medicineErrors.timesPerDay = 'Times per day must be at least 1';
     }
 
-    const timePattern = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    const timePattern24 = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    const timePattern12 = /^(\d{1,2}):(\d{2})\s*(AM|PM|am|pm)$/;
       medicine.doseTimes.forEach((time, doseIndex) => {
-      if (time.trim() && !timePattern.test(time)) {
-          medicineErrors[`doseTime${doseIndex}`] = 'Please enter time in HH:MM format';
+      if (time.trim() && !timePattern24.test(time) && !timePattern12.test(time)) {
+          medicineErrors[`doseTime${doseIndex}`] = 'Please enter time in HH:MM AM/PM format (e.g., 08:00 AM)';
       }
       });
       newErrors.medicines[index] = medicineErrors;

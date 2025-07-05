@@ -1,5 +1,6 @@
 import React from 'react';
 import { User, Calendar, Trash2, Users } from 'lucide-react';
+import { convert24To12 } from '../utils/timeUtils';
 
 const Overview = ({
   activeUser,
@@ -81,7 +82,7 @@ const Overview = ({
                               }
                             </div>
                             <div className="text-xs text-gray-500">
-                              Times: {med.doseTimes.filter(Boolean).join(', ') || 'Not specified'}
+                              Times: {med.doseTimes.filter(Boolean).map(time => convert24To12(time)).join(', ') || 'Not specified'}
                             </div>
                             <div className="text-xs text-gray-400">
                               Start: {med.startDate || 'N/A'} | End: {med.endDate || 'N/A'}
@@ -98,7 +99,7 @@ const Overview = ({
                             }
                           </div>
                           <div className="text-xs text-gray-500 mb-1">
-                            Times: {(sched.doseTimes || []).filter(Boolean).join(', ') || 'Not specified'}
+                            Times: {(sched.doseTimes || []).filter(Boolean).map(time => convert24To12(time)).join(', ') || 'Not specified'}
                           </div>
                           <div className="text-xs text-gray-400">
                             Start: {sched.startDate || 'N/A'} | End: {sched.endDate || 'N/A'}
