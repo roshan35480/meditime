@@ -229,6 +229,28 @@ const ScheduleForm = ({
                   )}
                 </div>
 
+                {parseInt(medicine.timesPerDay, 10) > 1 && (
+                  <div className="flex gap-4 items-center mb-4">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Start Time</label>
+                      <input
+                        type="time"
+                        value={medicine.doseTimeRangeStart || '08:00'}
+                        onChange={e => onMedicineChange(index, 'doseTimeRangeStart', e.target.value)}
+                        className="px-2 py-1 border rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">End Time</label>
+                      <input
+                        type="time"
+                        value={medicine.doseTimeRangeEnd || '22:00'}
+                        onChange={e => onMedicineChange(index, 'doseTimeRangeEnd', e.target.value)}
+                        className="px-2 py-1 border rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -249,28 +271,50 @@ const ScheduleForm = ({
                 </button>
               </div>
               <div className="space-y-3">
-                {medicine.doseTimes.map((time, doseIndex) => (
-                  <div key={doseIndex} className="flex flex-wrap items-center gap-3">
-                    <input
-                      type="text"
-                      value={time}
-                      onChange={(e) => onDoseTimeChange(index, doseIndex, e.target.value)}
-                      className={`flex-1 min-w-[120px] px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all ${
-                        medicineErrors[`doseTime${doseIndex}`] ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                      placeholder="HH:MM (e.g., 08:00)"
-                    />
-                    {medicine.doseTimes.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => onRemoveDoseTime(index, doseIndex)}
-                        className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-all"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                ))}
+                {medicine.doseTimes.map((time, doseIndex) => {
+                  // Suggest next dose time if timesPerDay > 2 and not last input
+                  let nextSuggestion = null;
+                  const numDoses = parseInt(medicine.timesPerDay, 10);
+                  if (
+                    numDoses > 2 &&
+                    doseIndex < medicine.doseTimes.length - 1 &&
+                    time && /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time)
+                  ) {
+                    // Calculate next suggested time
+                    const start = 8 * 60;
+                    const end = 22 * 60;
+                    const interval = (end - start) / (numDoses - 1);
+                    const nextMinutes = Math.round(start + (doseIndex + 1) * interval);
+                    const h = String(Math.floor(nextMinutes / 60)).padStart(2, '0');
+                    const m = String(nextMinutes % 60).padStart(2, '0');
+                    nextSuggestion = `${h}:${m}`;
+                  }
+                  return (
+                    <div key={doseIndex} className="flex flex-wrap items-center gap-3">
+                      <input
+                        type="text"
+                        value={time}
+                        onChange={(e) => onDoseTimeChange(index, doseIndex, e.target.value)}
+                        className={`flex-1 min-w-[120px] px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all ${
+                          medicineErrors[`doseTime${doseIndex}`] ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        placeholder="HH:MM (e.g., 08:00)"
+                      />
+                      {medicine.doseTimes.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => onRemoveDoseTime(index, doseIndex)}
+                          className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-all"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                      {nextSuggestion && (
+                        <span className="text-xs text-indigo-500 ml-2">Suggested next: {nextSuggestion}</span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
               {Object.keys(medicineErrors).some(key => key.startsWith('doseTime')) && (
                 <p className="text-red-500 text-sm mt-2 flex items-center gap-1">

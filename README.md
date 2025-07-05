@@ -1,70 +1,124 @@
-# Getting Started with Create React App
+# MediTime - Medication Reminder App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React-based medication reminder application that helps users manage their medication schedules. The app stores all data locally in the browser's localStorage, ensuring privacy and offline functionality.
+
+## Features
+
+- **Multi-user Support**: Create and manage multiple user profiles
+- **Flexible Scheduling**: Set up medication schedules with various options:
+  - Days per week scheduling
+  - Gap-based scheduling
+  - Multiple dose times per day
+- **Local Storage**: All data is stored locally in the browser
+- **Real-time Reminders**: Browser notifications and audio alerts
+- **Schedule Management**: Save, view, and delete medication schedules
+- **Responsive Design**: Works on desktop and mobile devices
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (version 14 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd meditime
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Start the development server:
+```bash
+npm start
+```
+
+4. Open [http://localhost:3000](http://localhost:3000) to view the app in your browser.
+
+## Usage
+
+### Creating Users
+1. Click on the user management icon in the header
+2. Enter a username and click "Create User"
+3. Switch between users using the dropdown
+
+### Setting Up Medication Schedules
+1. Enter the patient's name
+2. Add medications with their details:
+   - Medicine name
+   - Scheduling method (days per week or gap-based)
+   - Selected days or gap interval
+   - Number of times per day
+   - Dose times
+3. Click "Generate Schedule" to create the schedule
+4. Save the schedule to your user's profile
+
+### Managing Schedules
+- View all saved schedules in the "Overview" tab
+- Delete individual schedules or clear all schedules
+- Schedules are automatically saved per user
+
+## Data Storage
+
+All data is stored locally in the browser's localStorage:
+- User profiles
+- Medication schedules
+- Form data for each user
+
+**Note**: Data is stored per browser/device and will not sync across devices.
 
 ## Available Scripts
 
-In the project directory, you can run:
+- `npm start` - Runs the app in development mode
+- `npm test` - Launches the test runner
+- `npm run build` - Builds the app for production
+- `npm run eject` - Ejects from Create React App (one-way operation)
 
-### `npm start`
+## Technologies Used
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- React 19
+- Tailwind CSS
+- Lucide React (icons)
+- Browser Notifications API
+- Web Speech API (text-to-speech)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Browser Compatibility
 
-### `npm test`
+The app works in modern browsers that support:
+- localStorage
+- Notifications API
+- Speech Synthesis API
+- ES6+ features
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Privacy
 
-### `npm run build`
+Since all data is stored locally in the browser:
+- No data is sent to external servers
+- No internet connection required after initial load
+- Data persists until browser data is cleared
+- Each user's data is isolated
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Troubleshooting
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+If you encounter issues:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. **Notifications not working**: Ensure you've granted notification permissions
+2. **Data not persisting**: Check if localStorage is enabled in your browser
+3. **Audio not playing**: Verify your browser supports speech synthesis
 
-### `npm run eject`
+## Development
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+The app uses a modular architecture:
+- `src/meditime.js` - Main application component
+- `src/services/storageService.js` - Data storage service
+- `src/components/` - Reusable UI components
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## License
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This project is licensed under the MIT License.

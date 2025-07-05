@@ -6,9 +6,7 @@ import Header from './components/Header';
 import ScheduleForm from './components/ScheduleForm';
 import SchedulePreview from './components/SchedulePreview';
 import Overview from './components/Overview';
-import { v4 as uuidv4 } from 'uuid';
-
-const LOCAL_STORAGE_KEY = 'meditime_app_data';
+import storageService from './services/storageService';
 
 // Define initial state for a single medicine
 const initialMedicineState = {
@@ -19,7 +17,9 @@ const initialMedicineState = {
   timesPerDay: '',
   doseTimes: [''],
   startDate: '',
-  endDate: ''
+  endDate: '',
+  doseTimeRangeStart: '08:00',
+  doseTimeRangeEnd: '22:00',
 };
 
 const MediTime = () => {
@@ -60,66 +60,111 @@ const MediTime = () => {
     }
   }, []);
 
-  // Load data from localStorage on mount
+  // Load data from storage service on mount and when activeUser changes
   useEffect(() => {
-    const data = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (data) {
-      const appData = JSON.parse(data);
-      const users = appData.users || [];
-      setAllUsers(users);
-      
-      const lastUser = appData.lastActiveUser;
-      if (lastUser && users.includes(lastUser)) {
-        setActiveUser(lastUser);
-        setSavedSchedules(appData.schedules[lastUser] || []);
-      } else if (users.length > 0) {
-        setActiveUser(users[0]);
-        setSavedSchedules(appData.schedules[users[0]] || []);
+    const loadData = async () => {
+      try {
+        const users = await storageService.getUsers();
+        setAllUsers(users.map(user => user.name));
+        
+        if (users.length > 0) {
+          const lastUser = localStorage.getItem('lastActiveUser');
+          const selectedUser = lastUser && users.find(u => u.name === lastUser) 
+            ? lastUser 
+            : users[0].name;
+          
+          setActiveUser(selectedUser);
+          
+          // Load schedules for the selected user
+          const user = users.find(u => u.name === selectedUser);
+          if (user) {
+            const schedules = await storageService.getSchedules(user.id);
+            setSavedSchedules(schedules);
+          }
+          
+          // Load form data for the selected user
+          const formData = await storageService.getFormData(user.id);
+          if (formData) {
+            setFormData(formData);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
       }
-    }
+    };
+    
+    loadData();
   }, []);
 
-  // Save to localStorage whenever users or schedules change
+  // Persist formData to storage service per user on change
   useEffect(() => {
-    if (allUsers.length > 0) {
-      const schedulesForUsers = allUsers.reduce((acc, user) => {
-        acc[user] = user === activeUser ? savedSchedules : (JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY))?.schedules?.[user] || []);
-        return acc;
-      }, {});
+    const saveFormData = async () => {
+      if (!activeUser) return;
+      
+      try {
+        const users = await storageService.getUsers();
+        const user = users.find(u => u.name === activeUser);
+        if (user) {
+          await storageService.saveFormData(user.id, formData);
+        }
+      } catch (error) {
+        console.error('Error saving form data:', error);
+      }
+    };
+    
+    saveFormData();
+  }, [formData, activeUser]);
 
-      const appData = {
-        users: allUsers,
-        schedules: schedulesForUsers,
-        lastActiveUser: activeUser
-      };
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(appData));
-    } else {
-       localStorage.removeItem(LOCAL_STORAGE_KEY);
+  // Save active user to localStorage for persistence
+  useEffect(() => {
+    if (activeUser) {
+      localStorage.setItem('lastActiveUser', activeUser);
     }
-  }, [allUsers, savedSchedules, activeUser]);
+  }, [activeUser]);
 
   // Effect to update displayed schedules when active user changes
   useEffect(() => {
-    if (activeUser) {
-      const data = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (data) {
-        const appData = JSON.parse(data);
-        setSavedSchedules(appData.schedules[activeUser] || []);
+    const loadSchedulesForUser = async () => {
+      if (!activeUser) {
+        setSavedSchedules([]);
+        return;
       }
-    } else {
-      setSavedSchedules([]);
-    }
-    // Reset form when user changes to avoid data leakage between profiles
-    resetForm();
+      
+      try {
+        const users = await storageService.getUsers();
+        const user = users.find(u => u.name === activeUser);
+        if (user) {
+          const schedules = await storageService.getSchedules(user.id);
+          setSavedSchedules(schedules);
+        }
+      } catch (error) {
+        console.error('Error loading schedules for user:', error);
+      }
+    };
+    
+    loadSchedulesForUser();
   }, [activeUser]);
 
-  // Save a new schedule to the active user's list
+  // Refresh schedules when submittedData changes (after successful save)
   useEffect(() => {
-    if (submittedData && activeUser) {
-      const updatedSchedules = [...savedSchedules, submittedData];
-      setSavedSchedules(updatedSchedules);
-    }
-  }, [submittedData]);
+    const refreshSchedules = async () => {
+      if (submittedData && activeUser) {
+        try {
+          const users = await storageService.getUsers();
+          const user = users.find(u => u.name === activeUser);
+          if (user) {
+            // Refresh schedules to show the newly saved one
+            const schedules = await storageService.getSchedules(user.id);
+            setSavedSchedules(schedules);
+          }
+        } catch (error) {
+          console.error('Error refreshing schedules:', error);
+        }
+      }
+    };
+    
+    refreshSchedules();
+  }, [submittedData, activeUser]);
 
   // Function to play reminder sound using Text-to-Speech
   const playReminderSound = (message) => {
@@ -204,10 +249,13 @@ const MediTime = () => {
     if (soonestDose && reminderMedicine) {
       const ms = soonestDose - now;
       reminderTimeoutRef.current = setTimeout(() => {
-        const reminderMessageUI = `⏰ ${reminderPatient} - Take ${reminderMedicine.medicineName} at ${soonestDose.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
         const ttsMessage = `${reminderPatient}, it is time to take your ${reminderMedicine.medicineName}.`;
         
-        setReminder(reminderMessageUI);
+        setReminder({
+          patient: reminderPatient,
+          medicine: reminderMedicine.medicineName,
+          time: soonestDose.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
         
         // Play immediately and then start interval
         playReminderSound(ttsMessage);
@@ -256,7 +304,7 @@ const MediTime = () => {
   };
 
   // Function to delete a saved schedule for the active user
-  const deleteSchedule = (index) => {
+  const deleteSchedule = async (index) => {
     const scheduleToDelete = savedSchedules[index];
     const patientName = scheduleToDelete.patientName;
     
@@ -266,44 +314,86 @@ const MediTime = () => {
       : scheduleToDelete.medicineName || 'this schedule';
 
     if (window.confirm(`Are you sure you want to delete the schedule for ${patientName} - ${medicineInfo}?`)) {
-      const updatedSchedules = savedSchedules.filter((_, i) => i !== index);
-      setSavedSchedules(updatedSchedules);
-      // Local storage update is handled by the useEffect hook
+      try {
+        await storageService.deleteSchedule(scheduleToDelete.id, activeUser);
+        const updatedSchedules = savedSchedules.filter((_, i) => i !== index);
+        setSavedSchedules(updatedSchedules);
+      } catch (error) {
+        console.error('Error deleting schedule:', error);
+        alert("Failed to delete schedule. Please try again.");
+      }
     }
   };
 
   // Function to clear all saved schedules for the active user
-  const clearAllSchedules = () => {
+  const clearAllSchedules = async () => {
     if (window.confirm(`Are you sure you want to delete ALL schedules for user "${activeUser}"? This action cannot be undone.`)) {
-      setSavedSchedules([]);
-      // Local storage update is handled by the useEffect hook
+      try {
+        const users = await storageService.getUsers();
+        const user = users.find(u => u.name === activeUser);
+        if (user) {
+          await storageService.deleteAllSchedules(user.id);
+          setSavedSchedules([]);
+        }
+      } catch (error) {
+        console.error('Error clearing schedules:', error);
+        alert("Failed to clear schedules. Please try again.");
+      }
     }
   };
 
   // Handlers for user management
-  const handleCreateUser = (newUserName) => {
-    if (newUserName && !allUsers.includes(newUserName)) {
-      const newUsers = [...allUsers, newUserName];
-      setAllUsers(newUsers);
-      setActiveUser(newUserName);
-      setShowUserModal(false);
-    } else if (allUsers.includes(newUserName)) {
-      alert("User with this name already exists.");
+  const handleCreateUser = async (newUserName) => {
+    try {
+      if (newUserName && !allUsers.includes(newUserName)) {
+        const newUser = await storageService.createUser(newUserName);
+        const newUsers = [...allUsers, newUser.name];
+        setAllUsers(newUsers);
+        setActiveUser(newUser.name);
+        setShowUserModal(false);
+      } else if (allUsers.includes(newUserName)) {
+        alert("User with this name already exists.");
+      }
+    } catch (error) {
+      console.error('Error creating user:', error);
+      alert("Failed to create user. Please try again.");
     }
   };
 
-  const handleSwitchUser = (user) => {
-    setActiveUser(user);
-    setShowUserModal(false);
+  const handleSwitchUser = async (userName) => {
+    try {
+      setActiveUser(userName);
+      setShowUserModal(false);
+      
+      // Load schedules for the selected user
+      const users = await storageService.getUsers();
+      const user = users.find(u => u.name === userName);
+      if (user) {
+        const schedules = await storageService.getSchedules(user.id);
+        setSavedSchedules(schedules);
+      }
+    } catch (error) {
+      console.error('Error switching user:', error);
+    }
   };
 
-  const handleDeleteUser = (userToDelete) => {
+  const handleDeleteUser = async (userToDelete) => {
     if (window.confirm(`Are you sure you want to delete user "${userToDelete}" and all their schedules? This is irreversible.`)) {
-      const newUsers = allUsers.filter(u => u !== userToDelete);
-      setAllUsers(newUsers);
+      try {
+        const users = await storageService.getUsers();
+        const user = users.find(u => u.name === userToDelete);
+        if (user) {
+          await storageService.deleteUser(user.id);
+          const newUsers = allUsers.filter(u => u !== userToDelete);
+          setAllUsers(newUsers);
 
-      if (activeUser === userToDelete) {
-        setActiveUser(newUsers.length > 0 ? newUsers[0] : null);
+          if (activeUser === userToDelete) {
+            setActiveUser(newUsers.length > 0 ? newUsers[0] : null);
+          }
+        }
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        alert("Failed to delete user. Please try again.");
       }
     }
   };
@@ -338,7 +428,40 @@ const MediTime = () => {
 
   const handleMedicineChange = (index, field, value) => {
     const newMedicines = [...formData.medicines];
-    newMedicines[index][field] = value;
+    // If timesPerDay or time range is changed, set default doseTimes
+    if (field === 'timesPerDay' || field === 'doseTimeRangeStart' || field === 'doseTimeRangeEnd') {
+      const numDoses = parseInt(field === 'timesPerDay' ? value : newMedicines[index].timesPerDay, 10);
+      const startTime = field === 'doseTimeRangeStart' ? value : (newMedicines[index].doseTimeRangeStart || '08:00');
+      const endTime = field === 'doseTimeRangeEnd' ? value : (newMedicines[index].doseTimeRangeEnd || '22:00');
+      if (!isNaN(numDoses) && numDoses > 0) {
+        let doseTimes = [];
+        if (numDoses === 1) {
+          doseTimes = ['10:00'];
+        } else {
+          // Parse start and end time to minutes
+          const [startH, startM] = startTime.split(':').map(Number);
+          const [endH, endM] = endTime.split(':').map(Number);
+          const start = (isNaN(startH) ? 8 : startH) * 60 + (isNaN(startM) ? 0 : startM);
+          const end = (isNaN(endH) ? 22 : endH) * 60 + (isNaN(endM) ? 0 : endM);
+          const interval = (end - start) / (numDoses - 1);
+          for (let i = 0; i < numDoses; i++) {
+            const minutes = Math.round(start + i * interval);
+            const h = String(Math.floor(minutes / 60)).padStart(2, '0');
+            const m = String(minutes % 60).padStart(2, '0');
+            doseTimes.push(`${h}:${m}`);
+          }
+        }
+        if (field === 'timesPerDay') newMedicines[index][field] = value;
+        if (field === 'doseTimeRangeStart') newMedicines[index].doseTimeRangeStart = value;
+        if (field === 'doseTimeRangeEnd') newMedicines[index].doseTimeRangeEnd = value;
+        newMedicines[index].doseTimes = doseTimes;
+      } else {
+        newMedicines[index][field] = value;
+        newMedicines[index].doseTimes = [''];
+      }
+    } else {
+      newMedicines[index][field] = value;
+    }
     setFormData(prev => ({ ...prev, medicines: newMedicines }));
 
     if (errors.medicines && errors.medicines[index] && errors.medicines[index][field]) {
@@ -437,7 +560,7 @@ const MediTime = () => {
     return newErrors;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const validationErrors = validateForm();
     
     const hasPatientError = !!validationErrors.patientName;
@@ -454,12 +577,27 @@ const MediTime = () => {
       return;
     }
 
-    setErrors({});
-    setSubmittedData(formData);
-    setActiveTab('overview');
+    try {
+      setErrors({});
+      setSubmittedData(formData);
+      setActiveTab('overview');
+      
+      // Save schedule to database
+      const users = await storageService.getUsers();
+      const user = users.find(u => u.name === activeUser);
+      if (user) {
+        await storageService.saveSchedule(user.id, formData);
+        
+        // Remove form data after successful save
+        await storageService.deleteFormData(user.id);
+      }
+    } catch (error) {
+      console.error('Error saving schedule:', error);
+      alert("Failed to save schedule. Please try again.");
+    }
   };
 
-  const resetForm = () => {
+  const resetForm = async () => {
     setFormData({
       patientName: '',
       medicines: [{ ...initialMedicineState, doseTimes: [''] }]
@@ -467,6 +605,19 @@ const MediTime = () => {
     setSubmittedData(null);
     setErrors({});
     setActiveTab('schedule');
+    
+    // Remove formData for current user from storage
+    if (activeUser) {
+      try {
+        const users = await storageService.getUsers();
+        const user = users.find(u => u.name === activeUser);
+        if (user) {
+          await storageService.deleteFormData(user.id);
+        }
+      } catch (error) {
+        console.error('Error deleting form data:', error);
+      }
+    }
   };
 
   // Grouped schedules for overview display
@@ -500,19 +651,26 @@ const MediTime = () => {
 
       {/* Reminder Banner */}
       {reminder && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-11/12 md:w-auto max-w-lg bg-yellow-100 border border-yellow-300 text-yellow-900 px-4 py-3 sm:px-6 rounded-xl shadow-lg flex flex-col sm:flex-row items-center gap-3 animate-bounce">
-          <div className="flex-shrink-0">
-            <Bell className="w-6 h-6 text-yellow-600" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 backdrop-blur-sm">
+          <div role="alert" className="relative w-full max-w-md bg-gradient-to-br from-yellow-100 to-amber-200 border-2 border-yellow-300 text-yellow-900 p-6 rounded-2xl shadow-2xl text-center">
+              <div className="mx-auto mb-4 w-20 h-20 rounded-full bg-yellow-200/80 flex items-center justify-center animate-bounce border-4 border-white/50">
+                  <Bell className="w-10 h-10 text-yellow-700" />
+              </div>
+              <h3 className="text-2xl font-bold text-yellow-900 mb-2">Medication Reminder</h3>
+              <p className="mb-1 text-lg"><span className="font-semibold">{reminder.patient}</span></p>
+              <p className="mb-4 text-lg">
+                  Time to take <span className="font-semibold">{reminder.medicine}</span>
+              </p>
+              <p className="mb-6 text-2xl font-bold text-yellow-800 bg-white/50 rounded-lg py-2">
+                  {reminder.time}
+              </p>
+              <button 
+                  onClick={handleDismissReminder} 
+                  className="w-full px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-lg text-lg transition-all transform hover:scale-105 shadow-lg"
+              >
+                  Dismiss
+              </button>
           </div>
-          <div className="flex-1 text-center sm:text-left">
-            <span className="font-medium">{reminder}</span>
-          </div>
-          <button 
-            onClick={handleDismissReminder} 
-            className="w-full sm:w-auto mt-2 sm:mt-0 ml-0 sm:ml-4 px-3 py-1 bg-yellow-200 hover:bg-yellow-300 text-yellow-800 hover:text-yellow-900 font-bold rounded-md"
-          >
-            Dismiss
-          </button>
         </div>
       )}
       {/* Header */}
