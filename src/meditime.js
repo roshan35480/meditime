@@ -7,6 +7,7 @@ import ScheduleForm from './components/ScheduleForm';
 import SchedulePreview from './components/SchedulePreview';
 import Overview from './components/Overview';
 import storageService from './services/storageService';
+import { convert24To12, convert12To24, isValid12HourTime } from './utils/timeUtils';
 
 // Define initial state for a single medicine
 const initialMedicineState = {
@@ -569,6 +570,14 @@ const MediTime = () => {
           medicineErrors[`doseTime${doseIndex}`] = 'Please enter time in HH:MM AM/PM format (e.g., 08:00 AM)';
       }
       });
+      
+      // Validate time range inputs if they exist
+      if (medicine.doseTimeRangeStart && !timePattern24.test(medicine.doseTimeRangeStart) && !timePattern12.test(medicine.doseTimeRangeStart)) {
+        medicineErrors.doseTimeRangeStart = 'Please enter time in HH:MM AM/PM format (e.g., 08:00 AM)';
+      }
+      if (medicine.doseTimeRangeEnd && !timePattern24.test(medicine.doseTimeRangeEnd) && !timePattern12.test(medicine.doseTimeRangeEnd)) {
+        medicineErrors.doseTimeRangeEnd = 'Please enter time in HH:MM AM/PM format (e.g., 10:00 PM)';
+      }
       newErrors.medicines[index] = medicineErrors;
     });
 
@@ -672,21 +681,21 @@ const MediTime = () => {
       {/* Reminder Banner */}
       {reminder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 backdrop-blur-sm">
-          <div role="alert" className="relative w-full max-w-md bg-gradient-to-br from-yellow-100 to-amber-200 border-2 border-yellow-300 text-yellow-900 p-6 rounded-2xl shadow-2xl text-center">
-              <div className="mx-auto mb-4 w-20 h-20 rounded-full bg-yellow-200/80 flex items-center justify-center animate-bounce border-4 border-white/50">
-                  <Bell className="w-10 h-10 text-yellow-700" />
+          <div role="alert" className="relative w-full max-w-sm sm:max-w-md bg-gradient-to-br from-yellow-100 to-amber-200 border-2 border-yellow-300 text-yellow-900 p-4 sm:p-6 rounded-2xl shadow-2xl text-center">
+              <div className="mx-auto mb-4 w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-yellow-200/80 flex items-center justify-center animate-bounce border-4 border-white/50">
+                  <Bell className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-700" />
               </div>
-              <h3 className="text-2xl font-bold text-yellow-900 mb-2">Medication Reminder</h3>
-              <p className="mb-1 text-lg"><span className="font-semibold">{reminder.patient}</span></p>
-              <p className="mb-4 text-lg">
+              <h3 className="text-xl sm:text-2xl font-bold text-yellow-900 mb-2">Medication Reminder</h3>
+              <p className="mb-1 text-base sm:text-lg"><span className="font-semibold">{reminder.patient}</span></p>
+              <p className="mb-4 text-base sm:text-lg">
                   Time to take <span className="font-semibold">{reminder.medicine}</span>
               </p>
-              <p className="mb-6 text-2xl font-bold text-yellow-800 bg-white/50 rounded-lg py-2">
+              <p className="mb-6 text-xl sm:text-2xl font-bold text-yellow-800 bg-white/50 rounded-lg py-2">
                   {reminder.time}
               </p>
               <button 
                   onClick={handleDismissReminder} 
-                  className="w-full px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-lg text-lg transition-all transform hover:scale-105 shadow-lg"
+                  className="w-full px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-lg text-base sm:text-lg transition-all transform hover:scale-105 shadow-lg"
               >
                   Dismiss
               </button>
@@ -728,7 +737,7 @@ const MediTime = () => {
         </div>
 
         {activeTab === 'schedule' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
             {/* Form Section */}
             <ScheduleForm 
               formData={formData}
@@ -748,7 +757,9 @@ const MediTime = () => {
             />
 
             {/* Preview Section */}
-            <SchedulePreview submittedData={formData} />
+            <div className="order-first xl:order-last">
+              <SchedulePreview submittedData={formData} />
+            </div>
           </div>
         )}
 

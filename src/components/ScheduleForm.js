@@ -231,23 +231,31 @@ const ScheduleForm = ({
                 </div>
 
                 {parseInt(medicine.timesPerDay, 10) > 1 && (
-                  <div className="flex gap-4 items-center mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">Start Time</label>
                       <input
-                        type="time"
-                        value={medicine.doseTimeRangeStart || '08:00'}
-                        onChange={e => onMedicineChange(index, 'doseTimeRangeStart', e.target.value)}
-                        className="px-2 py-1 border rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                        type="text"
+                        value={convert24To12(medicine.doseTimeRangeStart || '08:00')}
+                        onChange={(e) => {
+                          const time24 = convert12To24(e.target.value);
+                          onMedicineChange(index, 'doseTimeRangeStart', time24);
+                        }}
+                        className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-sm"
+                        placeholder="08:00 AM"
                       />
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">End Time</label>
                       <input
-                        type="time"
-                        value={medicine.doseTimeRangeEnd || '22:00'}
-                        onChange={e => onMedicineChange(index, 'doseTimeRangeEnd', e.target.value)}
-                        className="px-2 py-1 border rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                        type="text"
+                        value={convert24To12(medicine.doseTimeRangeEnd || '22:00')}
+                        onChange={(e) => {
+                          const time24 = convert12To24(e.target.value);
+                          onMedicineChange(index, 'doseTimeRangeEnd', time24);
+                        }}
+                        className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-sm"
+                        placeholder="10:00 PM"
                       />
                     </div>
                   </div>
@@ -257,7 +265,7 @@ const ScheduleForm = ({
 
             {/* Dose Times - Optional */}
             <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                   <Clock className="w-5 h-5 text-indigo-600" />
                   Dose Times (Optional)
@@ -265,7 +273,7 @@ const ScheduleForm = ({
                 <button
                   type="button"
                   onClick={() => onAddDoseTime(index)}
-                  className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center gap-1 bg-white px-3 py-1 rounded-lg border border-indigo-200 hover:border-indigo-300 transition-all"
+                  className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center gap-1 bg-white px-3 py-2 rounded-lg border border-indigo-200 hover:border-indigo-300 transition-all w-full sm:w-auto justify-center"
                 >
                   <Plus className="w-4 h-4" />
                   Add Time
@@ -291,33 +299,40 @@ const ScheduleForm = ({
                     nextSuggestion = `${h}:${m}`;
                   }
                   return (
-                    <div key={doseIndex} className="flex flex-wrap items-center gap-3">
-                      <input
-                        type="text"
-                        value={convert24To12(time)}
-                        onChange={(e) => {
-                          const inputValue = e.target.value;
-                          // Convert 12-hour input to 24-hour for storage
-                          const time24 = convert12To24(inputValue);
-                          onDoseTimeChange(index, doseIndex, time24);
-                        }}
-                        className={`flex-1 min-w-[140px] px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all ${
-                          medicineErrors[`doseTime${doseIndex}`] ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                        placeholder="HH:MM AM/PM (e.g., 08:00 AM)"
-                      />
-                      {medicine.doseTimes.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => onRemoveDoseTime(index, doseIndex)}
-                          className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-all"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                      {nextSuggestion && (
-                        <span className="text-xs text-indigo-500 ml-2">Suggested next: {convert24To12(nextSuggestion)}</span>
-                      )}
+                    <div key={doseIndex} className="flex flex-col sm:flex-row gap-3">
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          value={convert24To12(time)}
+                          onChange={(e) => {
+                            const inputValue = e.target.value;
+                            // Convert 12-hour input to 24-hour for storage
+                            const time24 = convert12To24(inputValue);
+                            onDoseTimeChange(index, doseIndex, time24);
+                          }}
+                          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all ${
+                            medicineErrors[`doseTime${doseIndex}`] ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                          placeholder="HH:MM AM/PM (e.g., 08:00 AM)"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {medicine.doseTimes.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => onRemoveDoseTime(index, doseIndex)}
+                            className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-all flex-shrink-0"
+                            title="Remove time"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                        {nextSuggestion && (
+                          <span className="text-xs text-indigo-500 whitespace-nowrap">
+                            Suggested: {convert24To12(nextSuggestion)}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
